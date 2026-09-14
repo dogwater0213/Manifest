@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>5AM — training log</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#17202B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="5AM">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17202B;
+  --slab:#1E2937;
+  --edge:#2E3D4F;
+  --bone:#E8E4DB;
+  --muted:#8598AC;
+  --amber:#E5A03C;
+  --sage:#7FA07A;
+  --rust:#C77B62;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--bone);
+  font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-bottom:calc(64px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 18px}
+button,input,select{font-family:inherit;font-size:16px;color:inherit}
+button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:2px}
+
+/* ---- masthead ---- */
+.mast{padding:calc(18px + env(safe-area-inset-top)) 0 14px}
+.weekline{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.weekdots{display:flex;gap:3px;flex:1}
+.dot{height:5px;flex:1;background:var(--edge);border-radius:1px}
+.dot.past{background:var(--muted)}
+.dot.now{background:var(--amber)}
+.dot.dl{background:var(--rust)}
+.weekno{font-family:var(--display);font-weight:600;font-size:14px;color:var(--muted);white-space:nowrap;letter-spacing:.01em}
+h1{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(30px,8.5vw,42px);line-height:1.02;
+  letter-spacing:-.028em;margin:0 0 8px;
+}
+.sub{color:var(--muted);font-size:14.5px;margin:0}
+.flag{
+  margin-top:14px;padding:11px 13px;border-left:3px solid var(--amber);
+  background:rgba(229,160,60,.09);font-size:14.5px;line-height:1.45;
+}
+.flag.rest{border-color:var(--sage);background:rgba(127,160,122,.09)}
+.flag b{font-weight:600}
+
+/* ---- ledger rows ---- */
+.ledger{margin-top:26px;border-top:1px solid var(--edge)}
+.lift{border-bottom:1px solid var(--edge);padding:15px 0}
+.lift.done .name{color:var(--sage)}
+.lifthead{display:flex;align-items:baseline;gap:12px}
+.name{font-family:var(--display);font-weight:600;font-size:19px;letter-spacing:-.012em;flex:1}
+.scheme{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.last{color:var(--muted);font-size:13.5px;margin-top:3px;font-variant-numeric:tabular-nums}
+.last em{font-style:normal;color:var(--bone)}
+
+.sets{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap;align-items:center}
+.pip{
+  min-width:52px;height:34px;padding:0 8px;border:1px solid var(--edge);
+  background:var(--slab);border-radius:3px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted);
+}
+.pip.filled{border-color:var(--sage);color:var(--bone);background:rgba(127,160,122,.12)}
+.pip.undo{cursor:pointer}
+
+.entry{display:flex;gap:8px;margin-top:11px}
+.entry input{
+  width:100%;min-width:0;background:var(--slab);border:1px solid var(--edge);
+  border-radius:3px;padding:11px 10px;font-variant-numeric:tabular-nums;
+}
+.entry input::placeholder{color:#5F7386}
+.entry .fld{flex:1;position:relative}
+.entry .unit{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  color:#5F7386;font-size:12px;pointer-events:none;
+}
+.add{
+  background:var(--amber);color:#17202B;font-weight:700;border-radius:3px;
+  padding:0 18px;font-size:15px;flex:0 0 auto;
+}
+.add:active{background:#D08F2E}
+
+/* ---- generic blocks ---- */
+h2{
+  font-family:var(--display);font-weight:800;font-size:26px;
+  letter-spacing:-.022em;margin:0 0 4px;
+}
+.section{margin-top:30px}
+.section h3{
+  font-family:var(--display);font-weight:600;font-size:17px;
+  margin:0 0 10px;letter-spacing:-.01em;
+}
+.row{
+  display:flex;justify-content:space-between;gap:14px;
+  padding:11px 0;border-bottom:1px solid var(--edge);font-size:15px;
+}
+.row span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.big{font-family:var(--display);font-weight:800;font-size:40px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.bigsub{color:var(--muted);font-size:14px;margin-top:4px}
+.stats{display:flex;gap:28px;margin:18px 0 6px}
+.note{color:var(--muted);font-size:14px;line-height:1.5}
+.ghost{
+  border:1px solid var(--edge);border-radius:3px;padding:11px 14px;
+  font-size:14.5px;color:var(--bone);background:var(--slab);
+}
+.ghost:active{background:#26323F}
+.inline{display:flex;gap:8px;align-items:stretch;margin-top:12px}
+
+/* ---- chart ---- */
+.chart{width:100%;height:190px;margin-top:8px;display:block}
+.chart .grid{stroke:var(--edge);stroke-width:1}
+.chart .raw{fill:none;stroke:var(--edge);stroke-width:1.5}
+.chart .avg{fill:none;stroke:var(--amber);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.chart .lbl{fill:var(--muted);font-size:11px;font-family:var(--body)}
+.legend{display:flex;gap:16px;color:var(--muted);font-size:13px;margin-top:6px}
+.swatch{display:inline-block;width:14px;height:2.5px;vertical-align:middle;margin-right:6px}
+
+/* ---- daypicker ---- */
+.days{display:flex;gap:5px;margin-top:18px}
+.day{
+  flex:1;padding:9px 0;text-align:center;border:1px solid var(--edge);
+  border-radius:3px;font-size:13px;color:var(--muted);background:var(--slab);
+  font-family:var(--display);font-weight:600;
+}
+.day.sel{border-color:var(--amber);color:var(--amber)}
+.day.logged{color:var(--sage)}
+
+/* ---- tabs ---- */
+nav{
+  position:fixed;bottom:0;left:0;right:0;background:var(--slab);
+  border-top:1px solid var(--edge);display:flex;
+  padding-bottom:env(safe-area-inset-bottom);z-index:10;
+}
+nav button{
+  flex:1;padding:13px 4px 14px;color:var(--muted);font-size:12.5px;
+  font-family:var(--display);font-weight:600;letter-spacing:.005em;
+  border-top:2px solid transparent;margin-top:-1px;
+}
+nav button.on{color:var(--bone);border-top-color:var(--amber)}
+
+.hide{display:none}
+@media (prefers-reduced-motion:no-preference){
+  .pip,.day{transition:border-color .15s,background .15s,color .15s}
+}
+</style>
+</head>
+<body>
+
+<main class="wrap" id="view"></main>
+
+<nav id="tabs">
+  <button data-tab="today" class="on">Today</button>
+  <button data-tab="body">Body</button>
+  <button data-tab="trend">Trend</button>
+  <button data-tab="plan">Plan</button>
+</nav>
+
+<script>
+/* ============================================================
+   storage — localStorage with an in-memory fallback so the app
+   still runs in sandboxed previews
+   ============================================================ */
+const KEY = "fiveam_log_v1";
+let mem = null;
+function load(){
+  if(mem) return mem;
+  try{
+    const raw = localStorage.getItem(KEY);
+    mem = raw ? JSON.parse(raw) : fresh();
+  }catch(e){ mem = fresh(); }
+  return mem;
+}
+function fresh(){
+  return { start:null, weights:{}, waist:{}, sessions:{}, cals:2450 };
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(mem)); }catch(e){}
+}
+
+/* ============================================================
+   dates & week logic
+   ============================================================ */
+const DAY_MS = 86400000;
+function iso(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function parseISO(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function today(){ return iso(new Date()); }
+
+function weekOf(dateStr){
+  const s = load().start;
+  if(!s) return 1;
+  const days = Math.floor((parseISO(dateStr) - parseISO(s)) / DAY_MS);
+  return Math.max(1, Math.floor(days/7) + 1);
+}
+const DELOADS = [8,16,24];
+const isDeload = w => DELOADS.includes(w);
+const isDietBreak = w => w===17 || w===18;
+function blockOf(w){ return w<=8 ? 0 : (w<=16 ? 1 : 2); }
+
+/* ============================================================
+   the program
+   ============================================================ */
+const CORE = [
+  ["Dead bug","3 × 40 sec"],
+  ["Front plank","3 × 40 sec"],
+  ["Side plank","3 × 30 sec each"],
+  ["Hollow hold","3 × 30 sec"],
+  ["Hanging knee raise","3 × 10"]
+];
+
+const PROGRAM = {
+  1:{ title:"Lower — hinge & glute", blocks:[
+      [["Barbell RDL","3 × 8"],["Hip thrust","3 × 10"],["Walking lunge","2 × 12 each"],["Lying leg curl","2 × 12"]],
+      [["Dumbbell RDL","3 × 10"],["Single-leg hip thrust","3 × 10 each"],["Reverse lunge","2 × 12 each"],["Seated leg curl","2 × 12"]],
+      [["Good morning","3 × 8"],["Hip thrust","4 × 8"],["Dumbbell step-up","2 × 12 each"],["Seated leg curl","2 × 15"]]
+    ], core:[0,1] },
+  2:{ title:"Upper — press & upper pec", blocks:[
+      [["Incline barbell press","4 × 6–8"],["Low-to-high cable fly","3 × 12"],["Seated dumbbell press","3 × 10"],["Triceps pushdown","2 × 12"]],
+      [["Incline dumbbell press","4 × 8–10"],["Low-to-high cable fly","3 × 15"],["Landmine press","3 × 10"],["Overhead triceps ext.","2 × 12"]],
+      [["Smith incline press","4 × 6–8"],["Incline dumbbell fly","3 × 12"],["Seated dumbbell press","3 × 12"],["Dips","2 × 10"]]
+    ], core:[2,3] },
+  3:{ title:"Conditioning — intervals", cond:true },
+  4:{ title:"Lower — squat & glute", blocks:[
+      [["Back squat","3 × 8"],["Bulgarian split squat","3 × 10 each"],["Hip abduction","3 × 15"],["Standing calf raise","2 × 15"]],
+      [["Leg press","3 × 10"],["Front-foot elevated split squat","3 × 10 each"],["Cable abduction","3 × 15"],["Seated calf raise","2 × 15"]],
+      [["Hack squat","3 × 10"],["Bulgarian split squat","3 × 12 each"],["Hip abduction","3 × 20"],["Standing calf raise","2 × 20"]]
+    ], core:[4,1] },
+  5:{ title:"Upper — pull & incline", blocks:[
+      [["Incline dumbbell press","3 × 8"],["Chest-supported row","4 × 10"],["Lat pulldown","3 × 10"],["Rear delt fly","2 × 15"]],
+      [["Incline dumbbell press","3 × 10"],["Seated cable row","4 × 10"],["Pull-up or assisted","3 × max"],["Face pull","2 × 15"]],
+      [["Incline dumbbell press","3 × 12"],["Chest-supported row","4 × 8"],["Neutral-grip pulldown","3 × 12"],["Rear delt fly","2 × 20"]]
+    ], core:[0,2] },
+  6:{ title:"Zone 2 — easy aerobic", zone2:true },
+  0:{ title:"Zone 2 — easy aerobic", zone2:true }
+};
+
+function condRounds(w){ return Math.min(12, 8 + Math.floor((w-1)/6)); }
+
+function sessionFor(dateStr, dow){
+  const w = weekOf(dateStr);
+  const p = PROGRAM[dow];
+  const out = { title:p.title, week:w, dow, cond:!!p.cond, zone2:!!p.zone2, lifts:[] };
+  if(p.blocks){
+    const b = blockOf(w);
+    out.lifts = p.blocks[b].map((x,i)=>({
+      id: dow+"-"+slug(x[0]), name:x[0], scheme:x[1], sets:parseInt(x[1],10)||3
+    }));
+    p.core.forEach(ci=>{
+      out.lifts.push({ id:"core-"+slug(CORE[ci][0]), name:CORE[ci][0], scheme:CORE[ci][1], sets:3, core:true });
+    });
+  }
+  if(p.cond) out.rounds = condRounds(w);
+  return out;
+}
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+
+/* ============================================================
+   logging helpers
+   ============================================================ */
+function logged(dateStr, exId){
+  const d = load().sessions[dateStr];
+  return (d && d[exId]) ? d[exId] : [];
+}
+function pushSet(dateStr, exId, weight, reps){
+  const s = load().sessions;
+  if(!s[dateStr]) s[dateStr] = {};
+  if(!s[dateStr][exId]) s[dateStr][exId] = [];
+  s[dateStr][exId].push({w:weight, r:reps});
+  save();
+}
+function popSet(dateStr, exId){
+  const s = load().sessions;
+  if(s[dateStr] && s[dateStr][exId]) s[dateStr][exId].pop();
+  save();
+}
+function lastTime(exId, beforeDate){
+  const s = load().sessions;
+  const dates = Object.keys(s).filter(d=>d<beforeDate).sort().reverse();
+  for(const d of dates){
+    if(s[d][exId] && s[d][exId].length){
+      const sets = s[d][exId];
+      let best = sets[0];
+      sets.forEach(x=>{ if(x.w>best.w || (x.w===best.w && x.r>best.r)) best = x; });
+      return { date:d, set:best, count:sets.length };
+    }
+  }
+  return null;
+}
+function anyLogged(dateStr){
+  const d = load().sessions[dateStr];
+  return d && Object.keys(d).some(k=>d[k].length);
+}
+
+/* ============================================================
+   weight maths
+   ============================================================ */
+function weightSeries(){
+  const w = load().weights;
+  return Object.keys(w).sort().map(d=>({d, v:w[d]}));
+}
+function rollingAvg(series, n){
+  return series.map((pt,i)=>{
+    const from = Math.max(0, i-n+1);
+    const slice = series.slice(from, i+1);
+    return { d:pt.d, v: slice.reduce((a,b)=>a+b.v,0)/slice.length };
+  });
+}
+function avgLast(n){
+  const s = weightSeries().slice(-n);
+  if(!s.length) return null;
+  return s.reduce((a,b)=>a+b.v,0)/s.length;
+}
+function weeklyChange(){
+  const s = weightSeries();
+  if(s.length < 10) return null;
+  const recent = s.slice(-7), prior = s.slice(-14,-7);
+  if(prior.length < 4) return null;
+  const a = recent.reduce((x,y)=>x+y.v,0)/recent.length;
+  const b = prior.reduce((x,y)=>x+y.v,0)/prior.length;
+  return a-b;
+}
+
+/* ============================================================
+   views
+   ============================================================ */
+let tab = "today";
+let viewDate = today();
+let viewDow = new Date().getDay();
+
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function render(){
+  const el = document.getElementById("view");
+  if(!load().start){ el.innerHTML = setupView(); return; }
+  el.innerHTML =
+    tab==="today" ? todayView() :
+    tab==="body"  ? bodyView()  :
+    tab==="trend" ? trendView() : planView();
+}
+
+/* ---------- setup ---------- */
+function setupView(){
+  return `
+  <div class="mast">
+    <h1>Twenty-four weeks<br>start here</h1>
+    <p class="sub">Set your first day and starting weight. Everything else is calculated from these.</p>
+  </div>
+  <div class="section">
+    <h3>First day of the program</h3>
+    <div class="entry"><div class="fld"><input type="date" id="s-date" value="${today()}"></div></div>
+    <h3 style="margin-top:22px">Starting weight</h3>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" id="s-wt" placeholder="235" step="0.1"><span class="unit">lb</span></div>
+      <button class="add" onclick="doSetup()">Begin</button>
+    </div>
+    <p class="note" style="margin-top:16px">Weigh in first thing, after the bathroom, before anything else. Same conditions every day or the number is noise.</p>
+  </div>`;
+}
+function doSetup(){
+  const d = document.getElementById("s-date").value;
+  const w = parseFloat(document.getElementById("s-wt").value);
+  if(!d){ return; }
+  const s = load();
+  s.start = d;
+  if(!isNaN(w)) s.weights[d] = w;
+  save(); render();
+}
+
+/* ---------- today ---------- */
+function weekStrip(w){
+  let out = "";
+  for(let i=1;i<=24;i++){
+    const cls = isDeload(i) ? "dot dl" : (i===w ? "dot now" : (i<w ? "dot past" : "dot"));
+    out += `<i class="${cls}"></i>`;
+  }
+  return out;
+}
+
+function todayView(){
+  const s = sessionFor(viewDate, viewDow);
+  const w = s.week;
+  const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  let flag = "";
+  if(isDeload(w)) flag = `<div class="flag"><b>Deload week.</b> Same sessions, about 60% of your usual load, stop every set well short. This is the week that keeps the next eight possible.</div>`;
+  else if(isDietBreak(w)) flag = `<div class="flag"><b>Diet break.</b> Eat at maintenance — roughly ${load().cals+450} calories — for these two weeks. Training does not change.</div>`;
+  else if(w===9 || w===17) flag = `<div class="flag"><b>New variation block.</b> The lifts changed today. Expect to start lighter than you finished last block — that is the point, not a setback.</div>`;
+
+  const days = names.map((n,i)=>{
+    const dt = dateForDow(i);
+    const cls = "day" + (i===viewDow ? " sel" : "") + (anyLogged(dt) ? " logged" : "");
+    return `<button class="${cls}" onclick="pickDay(${i})">${n}</button>`;
+  }).join("");
+
+  let body = "";
+  if(s.cond){
+    body = condBody(s);
+  }else if(s.zone2){
+    body = zone2Body(s);
+  }else{
+    body = `<div class="ledger">` + s.lifts.map(liftRow).join("") + `</div>`;
+  }
+
+  return `
+  <div class="mast">
+    <div class="weekline">
+      <span class="weekno">Week ${w} of 24</span>
+      <span class="weekdots">${weekStrip(w)}</span>
+    </div>
+    <h1>${esc(s.title)}</h1>
+    <p class="sub">${s.zone2 ? "45–75 minutes, conversational pace" : "45 minutes, in and out"}</p>
+    ${flag}
+    <div class="days">${days}</div>
+  </div>
+  ${body}`;
+}
+
+function dateForDow(dow){
+  const now = new Date();
+  const diff = dow - now.getDay();
+  const d = new Date(now.getTime() + diff*DAY_MS);
+  return iso(d);
+}
+function pickDay(i){ viewDow = i; viewDate = dateForDow(i); render(); }
+
+function liftRow(ex){
+  const sets = logged(viewDate, ex.id);
+  const done = sets.length >= ex.sets;
+  const lt = lastTime(ex.id, viewDate);
+  const dl = isDeload(weekOf(viewDate));
+
+  let lastLine = "";
+  if(lt){
+    const ago = Math.round((parseISO(viewDate)-parseISO(lt.date))/DAY_MS);
+    const target = dl ? Math.round(lt.set.w*0.6/5)*5 : null;
+    lastLine = `<div class="last">Last time, ${ago}d ago: <em>${lt.set.w} × ${lt.set.r}</em>`
+      + (target ? ` — deload to about <em>${target}</em>` : "") + `</div>`;
+  }else{
+    lastLine = `<div class="last">No history yet — find a weight you could stop 2 reps short on.</div>`;
+  }
+
+  let pips = "";
+  for(let i=0;i<Math.max(ex.sets, sets.length);i++){
+    const st = sets[i];
+    const label = st ? (st.r === "s" ? st.w + "s" : st.w + " × " + st.r) : "";
+    pips += st
+      ? `<button class="pip filled undo" onclick="undo('${ex.id}')" title="Remove last set">${label}</button>`
+      : `<span class="pip">${i+1}</span>`;
+  }
+
+  const unit = ex.core ? "sec" : "lb";
+  const ph1  = ex.core ? "sec" : "weight";
+  const ph2  = ex.core ? "side" : "reps";
+
+  return `
+  <div class="lift${done?" done":""}">
+    <div class="lifthead">
+      <span class="name">${esc(ex.name)}</span>
+      <span class="scheme">${esc(ex.scheme)}</span>
+    </div>
+    ${ex.core ? "" : lastLine}
+    <div class="sets">${pips}</div>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" id="w-${ex.id}" placeholder="${ph1}"><span class="unit">${unit}</span></div>
+      ${ex.core ? "" : `<div class="fld"><input type="number" inputmode="numeric" id="r-${ex.id}" placeholder="${ph2}"></div>`}
+      <button class="add" onclick="addSet('${ex.id}',${ex.core?1:0})">Log</button>
+    </div>
+  </div>`;
+}
+
+function addSet(id, isCore){
+  const wEl = document.getElementById("w-"+id);
+  const rEl = document.getElementById("r-"+id);
+  const w = parseFloat(wEl.value);
+  if(isNaN(w)) { wEl.focus(); return; }
+  const r = isCore ? "s" : parseInt(rEl.value,10);
+  if(!isCore && isNaN(r)) { rEl.focus(); return; }
+  pushSet(viewDate, id, w, r);
+  render();
+}
+function undo(id){ popSet(viewDate, id); render(); }
+
+function condBody(s){
+  const done = logged(viewDate,"cond-intervals");
+  const rows = done.map((x,i)=>`<div class="row"><span>Round ${i+1}</span><span>${x.w} ${x.r==="s"?"":x.r}</span></div>`).join("");
+  return `
+  <div class="section">
+    <h3>${s.rounds} rounds — 1 minute hard, 2 minutes easy</h3>
+    <p class="note">Five minutes easy first. Hard means you could not hold a sentence together. Bike, rower or ski erg — whichever your knees like best that morning. Log watts, pace or distance, whatever your machine shows.</p>
+    ${rows ? `<div style="margin-top:14px">${rows}</div>` : ""}
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" id="w-cond-intervals" placeholder="output"></div>
+      <div class="fld"><input type="text" id="r-cond-intervals" placeholder="watts / m"></div>
+      <button class="add" onclick="addCond()">Log</button>
+    </div>
+    <p class="note" style="margin-top:14px">${done.length} of ${s.rounds} rounds logged.</p>
+  </div>`;
+}
+function addCond(){
+  const w = parseFloat(document.getElementById("w-cond-intervals").value);
+  const r = document.getElementById("r-cond-intervals").value || "";
+  if(isNaN(w)) return;
+  pushSet(viewDate,"cond-intervals",w,r);
+  render();
+}
+
+function zone2Body(s){
+  const done = logged(viewDate,"zone2");
+  return `
+  <div class="section">
+    <h3>Optional, and the highest-value optional thing here</h3>
+    <p class="note">Incline treadmill walk, ruck, or easy bike. Nose-breathing pace — you should be able to hold a conversation the whole way. This builds the endurance base without costing you anything on Monday.</p>
+    ${done.length ? `<div class="row" style="margin-top:14px"><span>Logged</span><span>${done[0].w} min</span></div>` : `
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="numeric" id="w-zone2" placeholder="45"><span class="unit">min</span></div>
+      <button class="add" onclick="addZone2()">Log</button>
+    </div>`}
+  </div>`;
+}
+function addZone2(){
+  const w = parseFloat(document.getElementById("w-zone2").value);
+  if(isNaN(w)) return;
+  pushSet(viewDate,"zone2",w,"min");
+  render();
+}
+
+/* ---------- body ---------- */
+function bodyView(){
+  const s = load();
+  const tw = s.weights[today()];
+  const a7 = avgLast(7);
+  const chg = weeklyChange();
+  const waistDates = Object.keys(s.waist).sort().reverse();
+
+  let verdict = `<p class="note">Log 10–14 days and a weekly trend will appear here.</p>`;
+  if(chg !== null){
+    const lb = Math.abs(chg).toFixed(2);
+    if(chg <= -2.0) verdict = `<p class="note">Down ${lb} lb this week — faster than you want. Add about 200 calories; at this rate you are spending muscle.</p>`;
+    else if(chg <= -0.8) verdict = `<p class="note">Down ${lb} lb this week. That is the range. Change nothing.</p>`;
+    else if(chg < -0.2) verdict = `<p class="note">Down ${lb} lb this week — slower than target. Hold one more week before touching anything; if it stays here, drop 150 calories.</p>`;
+    else if(chg <= 0.3) verdict = `<p class="note">Flat this week. One flat week is noise, especially if sleep was short. Three in a row means drop 150 calories.</p>`;
+    else verdict = `<p class="note">Up ${lb} lb this week. Check the weigh-ins are happening at the same time under the same conditions before changing food.</p>`;
+  }
+
+  return `
+  <div class="mast"><h2>Body</h2><p class="sub">One number every morning. Judge the average, never the day.</p></div>
+
+  <div class="stats">
+    <div><div class="big">${a7 ? a7.toFixed(1) : "—"}</div><div class="bigsub">7-day average</div></div>
+    <div><div class="big">${chg!==null ? (chg>0?"+":"")+chg.toFixed(1) : "—"}</div><div class="bigsub">change this week</div></div>
+  </div>
+  ${verdict}
+
+  <div class="section">
+    <h3>${tw ? "Today's weigh-in: "+tw+" lb" : "This morning's weigh-in"}</h3>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" step="0.1" id="b-wt" placeholder="${tw||"235.0"}"><span class="unit">lb</span></div>
+      <button class="add" onclick="saveWeight()">${tw?"Update":"Save"}</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Waist at the navel</h3>
+    <p class="note">Once a month, first thing, relaxed — do not suck in. For love handles specifically this tells you more than the scale does.</p>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" step="0.1" id="b-waist" placeholder="inches"><span class="unit">in</span></div>
+      <button class="add" onclick="saveWaist()">Save</button>
+    </div>
+    ${waistDates.slice(0,6).map(d=>`<div class="row"><span>${fmt(d)}</span><span>${s.waist[d]} in</span></div>`).join("")}
+  </div>
+
+  <div class="section">
+    <h3>Daily targets</h3>
+    <div class="row"><span>Calories</span><span>${s.cals}</span></div>
+    <div class="row"><span>Protein</span><span>190–210 g</span></div>
+    <div class="row"><span>Lights out</span><span>9:30–10:00 pm</span></div>
+    <div class="inline">
+      <div class="fld" style="flex:1"><input type="number" inputmode="numeric" id="b-cals" placeholder="adjust calories" style="width:100%;background:var(--slab);border:1px solid var(--edge);border-radius:3px;padding:11px 10px"></div>
+      <button class="ghost" onclick="saveCals()">Update</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Your data</h3>
+    <p class="note">Everything lives on this phone only. Export before you change phones or clear your browser.</p>
+    <div class="inline">
+      <button class="ghost" onclick="exportData()">Export backup</button>
+      <button class="ghost" onclick="document.getElementById('imp').click()">Restore</button>
+      <input type="file" id="imp" class="hide" accept="application/json" onchange="importData(this)">
+    </div>
+  </div>`;
+}
+function fmt(d){
+  const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dt = parseISO(d);
+  return m[dt.getMonth()]+" "+dt.getDate();
+}
+function saveWeight(){
+  const v = parseFloat(document.getElementById("b-wt").value);
+  if(isNaN(v)) return;
+  load().weights[today()] = v; save(); render();
+}
+function saveWaist(){
+  const v = parseFloat(document.getElementById("b-waist").value);
+  if(isNaN(v)) return;
+  load().waist[today()] = v; save(); render();
+}
+function saveCals(){
+  const v = parseInt(document.getElementById("b-cals").value,10);
+  if(isNaN(v)) return;
+  load().cals = v; save(); render();
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(load(),null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "5am-backup-"+today()+".json";
+  a.click();
+}
+function importData(input){
+  const f = input.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = e => {
+    try{ mem = JSON.parse(e.target.result); save(); render(); }
+    catch(err){ alert("That file could not be read. Pick a backup exported from this app."); }
+  };
+  rd.readAsText(f);
+}
+
+/* ---------- trend ---------- */
+function trendView(){
+  const raw = weightSeries();
+  if(raw.length < 2){
+    return `<div class="mast"><h2>Trend</h2></div>
+      <p class="note">Two weigh-ins and the chart draws itself. The first week of numbers will bounce around by several pounds from water alone — that is normal and it is why the average line exists.</p>`;
+  }
+  const avg = rollingAvg(raw,7);
+  const vals = raw.map(p=>p.v).concat(avg.map(p=>p.v));
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const pad = Math.max(1.5,(hi-lo)*0.15); lo-=pad; hi+=pad;
+
+  const W=560,H=190,L=34,R=8,T=12,B=22;
+  const x = i => L + (raw.length===1?0:i*(W-L-R)/(raw.length-1));
+  const y = v => T + (hi-v)*(H-T-B)/(hi-lo);
+  const path = arr => arr.map((p,i)=>(i?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1)).join(" ");
+
+  let grid="";
+  for(let g=0; g<=3; g++){
+    const v = lo + (hi-lo)*g/3;
+    grid += `<line class="grid" x1="${L}" x2="${W-R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/>
+             <text class="lbl" x="0" y="${(y(v)+4).toFixed(1)}">${v.toFixed(0)}</text>`;
+  }
+
+  const first = raw[0], last = raw[raw.length-1];
+  const lost = first.v - last.v;
+  const startW = load().weights[load().start] || first.v;
+  const a7 = avgLast(7);
+  const totalLost = a7 ? startW - a7 : 0;
+
+  const done = Object.keys(load().sessions).filter(anyLogged).length;
+
+  return `
+  <div class="mast"><h2>Trend</h2><p class="sub">${raw.length} weigh-ins since ${fmt(first.d)}</p></div>
+  <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Body weight over time">
+    ${grid}
+    <path class="raw" d="${path(raw)}"/>
+    <path class="avg" d="${path(avg)}"/>
+  </svg>
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--edge)"></i>daily</span>
+    <span><i class="swatch" style="background:var(--amber)"></i>7-day average</span>
+  </div>
+
+  <div class="section">
+    <h3>Since you started</h3>
+    <div class="row"><span>Starting weight</span><span>${startW.toFixed(1)} lb</span></div>
+    <div class="row"><span>Now, on average</span><span>${a7?a7.toFixed(1):"—"} lb</span></div>
+    <div class="row"><span>Total change</span><span>${totalLost>=0?"−":"+"}${Math.abs(totalLost).toFixed(1)} lb</span></div>
+    <div class="row"><span>Sessions logged</span><span>${done}</span></div>
+    <div class="row"><span>Week</span><span>${weekOf(today())} of 24</span></div>
+  </div>
+  <p class="note" style="margin-top:18px">A flat stretch of 7–10 days inside a falling trend is normal. Judge it by the amber line only.</p>`;
+}
+
+/* ---------- plan ---------- */
+function planView(){
+  const w = weekOf(today());
+  const cps = [
+    [2,"Prove the schedule is real",  "Up at 5, in bed by 10, five sessions done. If this part is not working, fix it before anything else — nothing downstream survives six hours of sleep."],
+    [4,"First honest data point",     "The 7-day average should be 4–6 lb below where you started. Core holds noticeably longer. Wednesday hurts less."],
+    [8,"Deload, then reset",          "First deload week. After it, swap to the second variation block and recalculate calories if the average has stalled."],
+    [16,"Second deload",              "Same again. By now the face and waist changes start showing to other people, not just to you."],
+    [17,"Diet break",                 "Two weeks at maintenance. Training unchanged. This is the single thing that separates people who finish from people who quit at month five."],
+    [24,"Decide what is next",        "Hold at maintenance, or turn it into a lean gaining phase. Do not simply keep cutting by default."]
+  ];
+  const rows = cps.map(([wk,t,d])=>{
+    const state = w>wk ? "past" : (w>=wk-1 && w<=wk ? "now" : "");
+    const mark = state==="past" ? "done" : (state==="now" ? "this week" : "week "+wk);
+    return `<div class="lift"><div class="lifthead"><span class="name" style="${state==="now"?"color:var(--amber)":state==="past"?"color:var(--sage)":""}">${t}</span><span class="scheme">${mark}</span></div><div class="last" style="color:var(--muted);margin-top:5px">${d}</div></div>`;
+  }).join("");
+
+  return `
+  <div class="mast"><h2>The plan</h2><p class="sub">Structure holds for 24 weeks. The numbers inside it should not.</p></div>
+
+  <div class="section">
+    <h3>Week to week</h3>
+    <div class="row"><span>Mon</span><span>Lower — hinge & glute</span></div>
+    <div class="row"><span>Tue</span><span>Upper — press & upper pec</span></div>
+    <div class="row"><span>Wed</span><span>Intervals</span></div>
+    <div class="row"><span>Thu</span><span>Lower — squat & glute</span></div>
+    <div class="row"><span>Fri</span><span>Upper — pull & incline</span></div>
+    <div class="row"><span>Sat or Sun</span><span>Zone 2, if you have it</span></div>
+  </div>
+
+  <div class="section">
+    <h3>How to progress</h3>
+    <p class="note">Hit the top of the rep range on every set, then add weight next time and drop back to the bottom of the range. That is the whole rule. Deloads land on weeks 8, 16 and 24 and the app will tell you when. Variations swap at weeks 9 and 17 — the app handles that too.</p>
+  </div>
+
+  <div class="section">
+    <h3>Checkpoints</h3>
+    <div class="ledger">${rows}</div>
+  </div>
+
+  <div class="section">
+    <h3>Worth knowing</h3>
+    <p class="note">Fat comes off in an order your genes choose, not one you pick. The face and love handles tend to be late for men, so most of that change shows up in the back half of these 24 weeks. Pre-workout: keep it under 200 mg of caffeine and only on lifting days — daily high doses hide fatigue rather than fix it, and you are trying to fix it.</p>
+    <p class="note" style="margin-top:12px">Stop and reassess if a joint hurts beyond ordinary soreness, if sleep falls apart, or if the average has not moved in a month despite calorie adjustments.</p>
+  </div>`;
+}
+
+/* ============================================================
+   boot
+   ============================================================ */
+document.getElementById("tabs").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-tab]");
+  if(!b) return;
+  tab = b.dataset.tab;
+  [...document.querySelectorAll("#tabs button")].forEach(x=>x.classList.toggle("on", x===b));
+  window.scrollTo(0,0);
+  render();
+});
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "5AM — training log",
+  "short_name": "5AM",
+  "description": "24-week lift log, weigh-ins and trend.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#17202B",
+  "theme_color": "#17202B",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
