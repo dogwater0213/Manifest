@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>5AM — training log</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#17202B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="5AM">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#17202B;
+  --slab:#1E2937;
+  --edge:#2E3D4F;
+  --bone:#E8E4DB;
+  --muted:#8598AC;
+  --amber:#E5A03C;
+  --sage:#7FA07A;
+  --rust:#C77B62;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink);color:var(--bone);
+  font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-bottom:calc(64px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 18px}
+button,input,select{font-family:inherit;font-size:16px;color:inherit}
+button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:2px}
+
+/* ---- masthead ---- */
+.mast{padding:calc(18px + env(safe-area-inset-top)) 0 14px}
+.weekline{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.weekdots{display:flex;gap:3px;flex:1}
+.weekdots i{height:5px;flex:1;background:var(--edge);border-radius:1px}
+.weekdots i.past{background:var(--muted)}
+.weekdots i.now{background:var(--amber)}
+.weekdots i.dl{background:var(--rust)}
+.weekno{font-family:var(--display);font-weight:600;font-size:14px;color:var(--muted);white-space:nowrap;letter-spacing:.01em}
+h1{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(30px,8.5vw,42px);line-height:1.02;
+  letter-spacing:-.028em;margin:0 0 8px;
+}
+.sub{color:var(--muted);font-size:14.5px;margin:0}
+.flag{
+  margin-top:14px;padding:11px 13px;border-left:3px solid var(--amber);
+  background:rgba(229,160,60,.09);font-size:14.5px;line-height:1.45;
+}
+.flag b{font-weight:600}
+
+/* ---- ledger rows ---- */
+.ledger{margin-top:26px;border-top:1px solid var(--edge)}
+.lift{border-bottom:1px solid var(--edge);padding:15px 0}
+.lift.done .name{color:var(--sage)}
+.lifthead{display:flex;align-items:baseline;gap:12px}
+.name{font-family:var(--display);font-weight:600;font-size:19px;letter-spacing:-.012em;flex:1}
+.scheme{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.last{color:var(--muted);font-size:13.5px;margin-top:3px;font-variant-numeric:tabular-nums}
+.last em{font-style:normal;color:var(--bone)}
+
+.sets{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap;align-items:center}
+.pip{
+  min-width:52px;height:34px;padding:0 8px;border:1px solid var(--edge);
+  background:var(--slab);border-radius:3px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted);
+}
+.pip.filled{border-color:var(--sage);color:var(--bone);background:rgba(127,160,122,.12)}
+.pip.undo{cursor:pointer}
+
+.entry{display:flex;gap:8px;margin-top:11px}
+.entry input{
+  width:100%;min-width:0;background:var(--slab);border:1px solid var(--edge);
+  border-radius:3px;padding:11px 10px;font-variant-numeric:tabular-nums;
+}
+.entry input::placeholder{color:#5F7386}
+.entry .fld{flex:1;position:relative}
+.entry .unit{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  color:#5F7386;font-size:12px;pointer-events:none;
+}
+.add{
+  background:var(--amber);color:#17202B;font-weight:700;border-radius:3px;
+  padding:0 18px;font-size:15px;flex:0 0 auto;
+}
+.add:active{background:#D08F2E}
+
+/* ---- generic blocks ---- */
+h2{
+  font-family:var(--display);font-weight:800;font-size:26px;
+  letter-spacing:-.022em;margin:0 0 4px;
+}
+.section{margin-top:30px}
+.section h3{
+  font-family:var(--display);font-weight:600;font-size:17px;
+  margin:0 0 10px;letter-spacing:-.01em;
+}
+.row{
+  display:flex;justify-content:space-between;gap:14px;
+  padding:11px 0;border-bottom:1px solid var(--edge);font-size:15px;
+}
+.row span:last-child{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.big{font-family:var(--display);font-weight:800;font-size:40px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.bigsub{color:var(--muted);font-size:14px;margin-top:4px}
+.stats{display:flex;gap:28px;margin:18px 0 6px}
+.note{color:var(--muted);font-size:14px;line-height:1.5}
+.ghost{
+  border:1px solid var(--edge);border-radius:3px;padding:11px 14px;
+  font-size:14.5px;color:var(--bone);background:var(--slab);
+}
+.ghost:active{background:#26323F}
+.ghost.danger{border-color:var(--rust);color:var(--rust)}
+.inline{display:flex;gap:8px;align-items:stretch;margin-top:12px}
+.inline .fld{flex:1;position:relative}
+.inline input{
+  width:100%;background:var(--slab);border:1px solid var(--edge);
+  border-radius:3px;padding:11px 10px;font-variant-numeric:tabular-nums;
+}
+
+/* ---- chart ---- */
+.chart{width:100%;height:190px;margin-top:8px;display:block}
+.chart .grid{stroke:var(--edge);stroke-width:1}
+.chart .raw{fill:none;stroke:var(--edge);stroke-width:1.5}
+.chart .avg{fill:none;stroke:var(--amber);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.chart .lbl{fill:var(--muted);font-size:11px;font-family:var(--body)}
+.legend{display:flex;gap:16px;color:var(--muted);font-size:13px;margin-top:6px}
+.swatch{display:inline-block;width:14px;height:2.5px;vertical-align:middle;margin-right:6px}
+
+/* ---- daypicker ---- */
+.toggle{display:flex;gap:5px;margin-top:10px}
+.toggle button{
+  flex:1;padding:9px 0;border:1px solid var(--edge);border-radius:3px;
+  background:var(--slab);color:var(--muted);font-family:var(--display);
+  font-weight:600;font-size:13.5px;
+}
+.toggle button.on{border-color:var(--amber);color:var(--amber)}
+.toggle button.skipbtn.on{border-color:var(--rust);color:var(--rust)}
+.days{display:flex;gap:5px;margin-top:18px}
+.day{
+  flex:1;padding:9px 0;text-align:center;border:1px solid var(--edge);
+  border-radius:3px;font-size:13px;color:var(--muted);background:var(--slab);
+  font-family:var(--display);font-weight:600;
+}
+.day.sel{border-color:var(--amber);color:var(--amber)}
+.day.logged{color:var(--sage)}
+.day.skipped{color:var(--rust)}
+
+/* ---- tabs ---- */
+nav{
+  position:fixed;bottom:0;left:0;right:0;background:var(--slab);
+  border-top:1px solid var(--edge);display:flex;
+  padding-bottom:env(safe-area-inset-bottom);z-index:10;
+}
+nav button{
+  flex:1;padding:13px 4px 14px;color:var(--muted);font-size:12.5px;
+  font-family:var(--display);font-weight:600;letter-spacing:.005em;
+  border-top:2px solid transparent;margin-top:-1px;
+}
+nav button.on{color:var(--bone);border-top-color:var(--amber)}
+
+.hide{display:none}
+@media (prefers-reduced-motion:no-preference){
+  .pip,.day{transition:border-color .15s,background .15s,color .15s}
+}
+</style>
+</head>
+<body>
+
+<main class="wrap" id="view"></main>
+
+<nav id="tabs">
+  <button data-tab="today" class="on">Today</button>
+  <button data-tab="body">Body</button>
+  <button data-tab="trend">Trend</button>
+  <button data-tab="plan">Plan</button>
+</nav>
+
+<script>
+/* ============================================================
+   storage — localStorage with an in-memory fallback so the app
+   still runs in sandboxed previews
+   ============================================================ */
+const KEY = "fiveam_log_v1";
+let mem = null;
+function load(){
+  if(mem) return mem;
+  try{
+    const raw = localStorage.getItem(KEY);
+    mem = raw ? JSON.parse(raw) : fresh();
+  }catch(e){ mem = fresh(); }
+  return migrate(mem);
+}
+
+/* Exercise ids used to carry the weekday that owned them, so the same lift on two
+   days kept two separate histories. They are keyed by exercise alone now, and this
+   rewrites old keys once so nothing logged before today is lost. */
+function migrate(o){
+  if(!o) return fresh();
+  if(!o.modes)  o.modes  = {};
+  if(!o.sleep)  o.sleep  = {};
+  if(!o.photos) o.photos = {};
+  if(!o.belt)   o.belt   = {};
+  if(!o.rhr)    o.rhr    = {};
+  if(!o.hrv)    o.hrv    = {};
+  if(!o.waist)  o.waist  = {};
+  if(!o.v || o.v < 2){
+    const sess = o.sessions || {};
+    Object.keys(sess).forEach(d=>{
+      const day = sess[d], out = {};
+      Object.keys(day).forEach(k=>{
+        const hm = k.match(/^h\d-(.+)$/);
+        const gm = k.match(/^\d-(.+)$/);
+        const nk = hm ? ("h-" + hm[1]) : (gm ? gm[1] : k);
+        out[nk] = out[nk] ? out[nk].concat(day[k]) : day[k];
+      });
+      sess[d] = out;
+    });
+    o.sessions = sess;
+    o.v = 2;
+  }
+  return o;
+}
+function fresh(){
+  return { start:null, weights:{}, waist:{}, sleep:{}, photos:{}, belt:{}, rhr:{}, hrv:{},
+           sessions:{}, modes:{}, cals:2450, v:2 };
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(mem)); }catch(e){}
+}
+
+/* ============================================================
+   dates & week logic
+   ============================================================ */
+const DAY_MS = 86400000;
+function iso(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function parseISO(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function today(){ return iso(new Date()); }
+
+function weekOf(dateStr){
+  const s = load().start;
+  if(!s) return 1;
+  const days = Math.floor((parseISO(dateStr) - parseISO(s)) / DAY_MS);
+  return Math.max(1, Math.floor(days/7) + 1);
+}
+const DELOADS = [8,16,24];
+const isDeload = w => DELOADS.includes(w);
+const isDietBreak = w => w===17 || w===18;
+function blockOf(w){ return w<=8 ? 0 : (w<=16 ? 1 : 2); }
+
+/* ============================================================
+   the program
+   ============================================================ */
+const CORE = [
+  ["Dead bug","3 × 40 sec","time"],
+  ["Front plank","3 × 40 sec","time"],
+  ["Side plank","3 × 30 sec each","time"],
+  ["Hollow hold","3 × 30 sec","time"],
+  ["Hanging knee raise","3 × 10","reps"]
+];
+/* no pull-up bar at home, so the hanging variant gets a floor substitute */
+const HOME_CORE = { 4: ["Lying leg raise","3 × 12","reps"] };
+
+const STAIRS = {
+  steady: ["StairMaster","30 min · level 7"],
+  hard:   ["StairMaster","30 min · 1 min at 9, 2 min at 5"],
+  easy:   ["StairMaster","30 min · level 5, conversational"],
+  long:   ["StairMaster","40–50 min · level 5"]
+};
+
+/* Two lifts a day, every day. The StairMaster is doing the quad and glute work,
+   so the barbell time goes to what climbing cannot reach: upper body, and the
+   hamstrings. No squats, no lunges, no leg press. */
+const PROGRAM = {
+  1:{ title:"Upper push & row", stairs:"steady", core:[0,1],
+      lifts:[["Incline barbell press","3 × 8"],["Chest-supported row","3 × 10"]],
+      home: [["Feet-elevated push-up","3 × 12–20"],["Towel row on a door frame","3 × 15"]] },
+  2:{ title:"Posterior chain", stairs:"hard", core:[],
+      lifts:[["Barbell RDL","3 × 8"],["Hip thrust","3 × 10"]],
+      home: [["Single-leg hip hinge","3 × 12 each"],["Single-leg glute bridge","3 × 15 each"]] },
+  3:{ title:"Shoulders & back", stairs:"steady", core:[2,3],
+      lifts:[["Seated dumbbell press","3 × 10"],["Lat pulldown","3 × 10"]],
+      home: [["Pike push-up","3 × 10"],["Towel row on a door frame","3 × 15"]] },
+  4:{ title:"Upper pec & hamstring", stairs:"easy", core:[],
+      lifts:[["Low-to-high cable fly","3 × 12"],["Lying leg curl","3 × 12"]],
+      home: [["Feet-elevated push-up","3 × 12"],["Sliding or towel leg curl","3 × 10"]] },
+  5:{ title:"Incline & pull", stairs:"steady", core:[0,2],
+      lifts:[["Incline dumbbell press","3 × 10"],["Seated cable row","3 × 10"]],
+      home: [["Diamond push-up","3 × 12"],["Prone Y-T-W raise","3 × 12 each"]] },
+  6:{ title:"Stairs only", stairs:"long", core:[], lifts:[], home:[] },
+  0:{ title:"Rest", rest:true }
+};
+
+function sessionFor(dateStr, dow, mode){
+  const w = weekOf(dateStr);
+  const p = PROGRAM[dow];
+  const home = mode === "home";
+  const out = { title:p.title, week:w, dow, home, rest:!!p.rest, lifts:[] };
+  if(p.rest) return out;
+
+  const list = (home ? p.home : p.lifts) || [];
+  const pfx  = home ? "h-" : "";
+  list.forEach(x=>{
+    out.lifts.push({ id: pfx+slug(x[0]), name:x[0], scheme:x[1],
+                     sets: parseInt(x[1],10)||3, entry: home ? "reps" : "load" });
+  });
+
+  (p.core || []).forEach(ci=>{
+    const c = (home && HOME_CORE[ci]) ? HOME_CORE[ci] : CORE[ci];
+    out.lifts.push({ id:"core-"+slug(c[0]), name:c[0], scheme:c[1],
+                     sets: parseInt(c[1],10)||3, entry:c[2] });
+  });
+
+  if(p.stairs){
+    if(home){
+      out.lifts.push({ id:"h-walk", name:"Brisk walk or ruck",
+                       scheme: p.stairs==="long" ? "45–60 min · outdoors" : "30 min · outdoors",
+                       sets:1, entry:"mins" });
+    }else{
+      const st = STAIRS[p.stairs];
+      out.lifts.push({ id:"stairs", name:st[0], scheme:st[1], sets:1, entry:"cardio" });
+    }
+  }
+  out.hasBoth = list.length > 0 && !!p.stairs;
+  return out;
+}
+
+function modeOf(dateStr){
+  const m = load().modes[dateStr];
+  return (m === "home" || m === "skip") ? m : "gym";
+}
+function skipCount(){
+  const m = load().modes;
+  return Object.keys(m).filter(k=>m[k]==="skip").length;
+}
+function setMode(m){
+  load().modes[viewDate] = m;
+  save(); render();
+}
+function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+
+/* ============================================================
+   logging helpers
+   ============================================================ */
+function logged(dateStr, exId){
+  const d = load().sessions[dateStr];
+  return (d && d[exId]) ? d[exId] : [];
+}
+function pushSet(dateStr, exId, weight, reps){
+  const s = load().sessions;
+  if(!s[dateStr]) s[dateStr] = {};
+  if(!s[dateStr][exId]) s[dateStr][exId] = [];
+  s[dateStr][exId].push({w:weight, r:reps});
+  save();
+}
+function popSet(dateStr, exId){
+  const s = load().sessions;
+  if(s[dateStr] && s[dateStr][exId]) s[dateStr][exId].pop();
+  save();
+}
+function lastTime(exId, beforeDate){
+  const s = load().sessions;
+  const dates = Object.keys(s).filter(d=>d<beforeDate).sort().reverse();
+  for(const d of dates){
+    if(s[d][exId] && s[d][exId].length){
+      const sets = s[d][exId];
+      let best = sets[0];
+      sets.forEach(x=>{ if(x.w>best.w || (x.w===best.w && x.r>best.r)) best = x; });
+      return { date:d, set:best, count:sets.length };
+    }
+  }
+  return null;
+}
+function anyLogged(dateStr){
+  const d = load().sessions[dateStr];
+  return d && Object.keys(d).some(k=>d[k].length);
+}
+
+/* ============================================================
+   weight maths
+   ============================================================ */
+function weightSeries(){
+  const w = load().weights;
+  return Object.keys(w).sort().map(d=>({d, v:w[d]}));
+}
+function rollingAvg(series, n){
+  return series.map((pt,i)=>{
+    const from = Math.max(0, i-n+1);
+    const slice = series.slice(from, i+1);
+    return { d:pt.d, v: slice.reduce((a,b)=>a+b.v,0)/slice.length };
+  });
+}
+function avgLast(n){
+  const s = weightSeries().slice(-n);
+  if(!s.length) return null;
+  return s.reduce((a,b)=>a+b.v,0)/s.length;
+}
+function sleepSeries(){
+  const sl = load().sleep;
+  return Object.keys(sl).sort().map(d=>({d, v:sl[d]}));
+}
+function avgSleep(n){
+  const s = sleepSeries().slice(-n);
+  if(!s.length) return null;
+  return s.reduce((a,b)=>a+b.v,0)/s.length;
+}
+function sleepVerdict(a){
+  if(a === null) return "Log a few mornings and a verdict shows up here.";
+  if(a >= 7.5) return "Where it needs to be. This is doing more for the result than any single session will.";
+  if(a >= 7)   return "Adequate. Another half hour would show up in your lifts before it showed up anywhere else.";
+  if(a >= 6)   return "Short. This is the first thing to look at when the scale stalls or a 5am session feels impossible — before touching food or training.";
+  return "Too little to run this on. Fix this before adjusting anything else; under-slept fat loss comes disproportionately out of muscle.";
+}
+
+function seriesOf(key){
+  const m = load()[key] || {};
+  return Object.keys(m).sort().map(d=>({d, v:m[d]}));
+}
+function avgOf(key, n, fromStart){
+  const a = seriesOf(key);
+  if(!a.length) return null;
+  const slice = fromStart ? a.slice(0, n) : a.slice(-n);
+  return slice.reduce((x,y)=>x+y.v, 0) / slice.length;
+}
+/* Daily resting rate bounces several bpm on nothing, so compare the first week
+   of readings with the most recent week rather than two single days. */
+function rhrDrop(){
+  if(seriesOf("rhr").length < 4) return null;
+  const first = avgOf("rhr", 7, true), last = avgOf("rhr", 7, false);
+  if(first === null || last === null) return null;
+  return first - last;
+}
+
+function weeklyChange(){
+  const s = weightSeries();
+  if(s.length < 10) return null;
+  const recent = s.slice(-7), prior = s.slice(-14,-7);
+  if(prior.length < 4) return null;
+  const a = recent.reduce((x,y)=>x+y.v,0)/recent.length;
+  const b = prior.reduce((x,y)=>x+y.v,0)/prior.length;
+  return a-b;
+}
+
+/* ============================================================
+   views
+   ============================================================ */
+let tab = "today";
+let viewDate = today();
+let viewDow = new Date().getDay();
+
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function render(){
+  const el = document.getElementById("view");
+  if(!load().start){ el.innerHTML = setupView(); return; }
+  el.innerHTML =
+    tab==="today" ? todayView() :
+    tab==="body"  ? bodyView()  :
+    tab==="trend" ? trendView() : planView();
+}
+
+/* ---------- setup ---------- */
+function setupView(){
+  return `
+  <div class="mast">
+    <h1>Twenty-four weeks<br>start here</h1>
+    <p class="sub">Set your first day and starting weight. Everything else is calculated from these.</p>
+  </div>
+  <div class="section">
+    <h3>First day of the program</h3>
+    <div class="entry"><div class="fld"><input type="date" id="s-date" value="${today()}"></div></div>
+    <h3 style="margin-top:22px">Starting weight</h3>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" id="s-wt" placeholder="235" step="0.1"><span class="unit">lb</span></div>
+      <button class="add" onclick="doSetup()">Begin</button>
+    </div>
+    <p class="note" style="margin-top:16px">Weigh in first thing, after the bathroom, before anything else. Same conditions every day or the number is noise.</p>
+  </div>`;
+}
+function doSetup(){
+  const d = document.getElementById("s-date").value;
+  const w = parseFloat(document.getElementById("s-wt").value);
+  if(!d){ return; }
+  const s = load();
+  s.start = d;
+  if(!isNaN(w)) s.weights[d] = w;
+  save(); render();
+}
+
+/* ---------- today ---------- */
+function weekStrip(w){
+  let out = "";
+  for(let i=1;i<=24;i++){
+    const cls = isDeload(i) ? "dl" : (i===w ? "now" : (i<w ? "past" : ""));
+    out += `<i class="${cls}"></i>`;
+  }
+  return out;
+}
+
+function todayView(){
+  const mode = modeOf(viewDate);
+  const s = sessionFor(viewDate, viewDow, mode);
+  const w = s.week;
+  const names = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  let flag = "";
+  if(isDeload(w)) flag = `<div class="flag"><b>Deload week.</b> Same sessions, about 60% of your usual load, stop every set well short. This is the week that keeps the next eight possible.</div>`;
+  else if(isDietBreak(w)) flag = `<div class="flag"><b>Diet break.</b> Eat at maintenance — roughly ${load().cals+450} calories — for these two weeks. Training does not change.</div>`;
+  else if(w===9 || w===17) flag = `<div class="flag"><b>New variation block.</b> The lifts changed today. Expect to start lighter than you finished last block — that is the point, not a setback.</div>`;
+
+  const days = names.map((n,i)=>{
+    const dt = dateForDow(i);
+    const dm = load().modes[dt];
+    let cls = "day" + (i===viewDow ? " sel" : "");
+    if(dm === "skip") cls += " skipped";
+    else if(anyLogged(dt)) cls += " logged";
+    return `<button class="${cls}" onclick="pickDay(${i})">${n}</button>`;
+  }).join("");
+
+  const toggle = s.rest ? "" : `
+    <div class="toggle">
+      <button class="${mode==="gym"?"on":""}" onclick="setMode('gym')">Gym</button>
+      <button class="${mode==="home"?"on":""}" onclick="setMode('home')">Home</button>
+      <button class="skipbtn ${mode==="skip"?"on":""}" onclick="setMode('skip')">Skip</button>
+    </div>`;
+
+  let body = "";
+  if(mode === "skip" && !s.rest){
+    body = skipBody();
+  }else if(s.rest){
+    body = restBody();
+  }else{
+    let intro = "";
+    if(s.home){
+      intro = `<p class="note" style="margin-top:22px">No StairMaster here, so the walk is the cardio — outdoors, brisk, and it counts. Nothing in this list jumps, so it stays quiet enough for an apartment. A doorway pull-up bar is about thirty dollars and covers the one pattern bodyweight cannot.</p>`;
+    }else if(s.hasBoth){
+      intro = `<p class="note" style="margin-top:22px">Lift first, climb second. Thirty minutes at level 7 before you touch a barbell and the lifting is wasted effort.</p>`;
+    }
+    body = intro + `<div class="ledger">` + s.lifts.map(liftRow).join("") + `</div>`;
+  }
+
+  return `
+  <div class="mast">
+    <div class="weekline">
+      <span class="weekno">Week ${w} of 24</span>
+      <span class="weekdots">${weekStrip(w)}</span>
+    </div>
+    <h1>${esc(s.title)}</h1>
+    <p class="sub">${mode==="skip" && !s.rest ? "Skipped" : s.rest ? "No session" : s.hasBoth ? "Two lifts, then 30 on the stairs" : "Stairs only, take your time"}</p>
+    ${flag}
+    <div class="days">${days}</div>
+    ${toggle}
+  </div>
+  ${weighInRow()}
+  ${body}`;
+}
+
+function dateForDow(dow){
+  const now = new Date();
+  const diff = dow - now.getDay();
+  const d = new Date(now.getTime() + diff*DAY_MS);
+  return iso(d);
+}
+function pickDay(i){ viewDow = i; viewDate = dateForDow(i); render(); }
+
+function setLabel(st, entry){
+  if(!st) return "";
+  if(entry === "cardio") return st.w + "m · L" + st.r;
+  if(entry === "mins" || st.r === "min") return st.w + "m";
+  if(entry === "time" || st.r === "s") return st.w + "s";
+  if(entry === "reps" || st.r === "reps") return "" + st.w;
+  return st.w + " × " + st.r;
+}
+
+function liftRow(ex){
+  const sets = logged(viewDate, ex.id);
+  const done = sets.length >= ex.sets;
+  const lt = lastTime(ex.id, viewDate);
+  const dl = isDeload(weekOf(viewDate));
+  const e = ex.entry;
+  const two = (e === "load" || e === "cardio");
+
+  let lastLine = "";
+  if(e === "time"){
+    lastLine = "";
+  }else if(lt){
+    const ago = Math.round((parseISO(viewDate)-parseISO(lt.date))/DAY_MS);
+    const best = e === "load"   ? (lt.set.w + " × " + lt.set.r)
+               : e === "cardio" ? (lt.set.w + " min at level " + lt.set.r)
+               : e === "mins"   ? (lt.set.w + " min")
+               :                  (lt.set.w + " reps");
+    let tail = "";
+    if(dl) tail = e === "load"
+      ? ` — deload to about <em>${Math.round(lt.set.w*0.6/5)*5}</em>`
+      : (e === "cardio" ? ` — deload week, drop to level 5` : ` — deload week, ease off`);
+    lastLine = `<div class="last">Last time, ${ago}d ago: <em>${best}</em>${tail}</div>`;
+  }else{
+    lastLine = e === "load"
+      ? `<div class="last">No history yet — find a weight you could stop 2 reps short on.</div>`
+      : e === "cardio"
+      ? `<div class="last">No history yet — log the minutes and the level you held.</div>`
+      : `<div class="last">No history yet — stop 2 or 3 reps short of failure on the first set.</div>`;
+  }
+
+  let pips = "";
+  for(let i=0;i<Math.max(ex.sets, sets.length);i++){
+    const st = sets[i];
+    pips += st
+      ? `<button class="pip filled undo" onclick="undo('${ex.id}')" title="Remove last entry">${setLabel(st, e)}</button>`
+      : `<span class="pip">${i+1}</span>`;
+  }
+
+  const unit = e === "time" ? "sec" : e === "reps" ? "reps"
+             : (e === "cardio" || e === "mins") ? "min" : "lb";
+  const ph1  = e === "time" ? "sec" : e === "reps" ? "reps"
+             : (e === "cardio" || e === "mins") ? "min" : "weight";
+  const ph2  = e === "cardio" ? "level" : "reps";
+
+  return `
+  <div class="lift${done?" done":""}">
+    <div class="lifthead">
+      <span class="name">${esc(ex.name)}</span>
+      <span class="scheme">${esc(ex.scheme)}</span>
+    </div>
+    ${lastLine}
+    <div class="sets">${pips}</div>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="${e==="load"?"decimal":"numeric"}" id="w-${ex.id}" placeholder="${ph1}"><span class="unit">${unit}</span></div>
+      ${two ? `<div class="fld"><input type="number" inputmode="numeric" id="r-${ex.id}" placeholder="${ph2}"></div>` : ""}
+      <button class="add" onclick="addSet('${ex.id}','${e}')">Log</button>
+    </div>
+  </div>`;
+}
+
+function addSet(id, entry){
+  const wEl = document.getElementById("w-"+id);
+  const v = parseFloat(wEl.value);
+  if(isNaN(v)) { wEl.focus(); return; }
+  let r;
+  if(entry === "load" || entry === "cardio"){
+    const rEl = document.getElementById("r-"+id);
+    r = parseFloat(rEl.value);
+    if(isNaN(r)) { rEl.focus(); return; }
+  }else{
+    r = (entry === "time") ? "s" : (entry === "mins") ? "min" : "reps";
+  }
+  pushSet(viewDate, id, v, r);
+  render();
+}
+function undo(id){ popSet(viewDate, id); render(); }
+
+/* The morning weigh-in lives here as well as on the Body tab: it is the one thing
+   to do before anything else, and it should not need a second tap to reach. */
+function weighInRow(){
+  if(viewDate !== today()) return "";
+  const d = load();
+  const tw = d.weights[today()];
+  const sl = d.sleep[today()];
+  return `
+  <div class="section" style="margin-top:24px">
+    <h3>This morning</h3>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" step="0.1" id="t-wt" placeholder="${tw || "weight"}"><span class="unit">lb</span></div>
+      <button class="add" onclick="saveWeightToday()">${tw ? "Update" : "Log"}</button>
+    </div>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" step="0.25" id="t-sl" placeholder="${sl || "slept"}"><span class="unit">hrs</span></div>
+      <button class="add" onclick="saveSleepToday()">${sl ? "Update" : "Log"}</button>
+    </div>
+    <p class="note" style="margin-top:10px">${tw ? tw + " lb" : "No weight yet"} · ${sl ? sl + " hrs" : "no sleep logged"}</p>
+  </div>`;
+}
+function saveWeightToday(){
+  const v = parseFloat(document.getElementById("t-wt").value);
+  if(isNaN(v)) return;
+  load().weights[today()] = v; save(); render();
+}
+function saveSleepToday(){
+  const v = parseFloat(document.getElementById("t-sl").value);
+  if(isNaN(v) || v <= 0 || v > 16) return;
+  load().sleep[today()] = v; save(); render();
+}
+
+function skipBody(){
+  return `
+  <div class="section">
+    <h3>Marked skipped</h3>
+    <p class="note">Recorded as skipped rather than quietly missing, which is the honest version and keeps the trend readable. One skipped day costs you nothing — the plan assumes a few. Three in a row is a signal worth looking at. Tap Gym or Home above if you change your mind.</p>
+  </div>`;
+}
+
+function restBody(){
+  return `
+  <div class="section">
+    <h3>Nothing today</h3>
+    <p class="note">Six days of climbing is enough, and this is the day the adaptation actually happens. Walk if you want to move. No stairs, no weights. Log the weigh-in on the Body tab and leave the rest alone.</p>
+  </div>`;
+}
+
+
+/* ---------- body ---------- */
+function bodyView(){
+  const s = load();
+  const tw = s.weights[today()];
+  const a7 = avgLast(7);
+  const chg = weeklyChange();
+  const a7s = avgSleep(7);
+  const photoDates = Object.keys(s.photos).sort().reverse();
+  const rhrDates   = Object.keys(s.rhr).sort().reverse();
+  const a7r = avgOf("rhr", 7, false), f7r = avgOf("rhr", 7, true);
+  const a7v = avgOf("hrv", 7, false);
+
+  let verdict = `<p class="note">Log 10–14 days and a weekly trend will appear here.</p>`;
+  if(chg !== null){
+    const lb = Math.abs(chg).toFixed(2);
+    if(chg <= -2.0) verdict = `<p class="note">Down ${lb} lb this week — faster than you want. Add about 200 calories; at this rate you are spending muscle.</p>`;
+    else if(chg <= -0.8) verdict = `<p class="note">Down ${lb} lb this week. That is the range. Change nothing.</p>`;
+    else if(chg < -0.2) verdict = `<p class="note">Down ${lb} lb this week — slower than target. Hold one more week before touching anything; if it stays here, drop 150 calories.</p>`;
+    else if(chg <= 0.3) verdict = `<p class="note">Flat this week. One flat week is noise, especially if sleep was short. Three in a row means drop 150 calories.</p>`;
+    else verdict = `<p class="note">Up ${lb} lb this week. Check the weigh-ins are happening at the same time under the same conditions before changing food.</p>`;
+  }
+
+  return `
+  <div class="mast"><h2>Body</h2><p class="sub">One number every morning. Judge the average, never the day.</p></div>
+
+  <div class="stats">
+    <div><div class="big">${a7 ? a7.toFixed(1) : "—"}</div><div class="bigsub">7-day average</div></div>
+    <div><div class="big">${chg!==null ? (chg>0?"+":"")+chg.toFixed(1) : "—"}</div><div class="bigsub">change this week</div></div>
+  </div>
+  ${verdict}
+
+  <div class="section">
+    <h3>${tw ? "Today's weigh-in: "+tw+" lb" : "This morning's weigh-in"}</h3>
+    <div class="entry">
+      <div class="fld"><input type="number" inputmode="decimal" step="0.1" id="b-wt" placeholder="${tw||"235.0"}"><span class="unit">lb</span></div>
+      <button class="add" onclick="saveWeight()">${tw?"Update":"Save"}</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Sleep</h3>
+    <div class="row"><span>Last 7 nights</span><span>${a7s ? a7s.toFixed(1) + " hrs" : "—"}</span></div>
+    <div class="row"><span>Target</span><span>7.5–8.5 hrs</span></div>
+    <p class="note" style="margin-top:10px">${sleepVerdict(a7s)}</p>
+    <p class="note" style="margin-top:10px">Read it off the Oura in the morning and type the one number. It lives here so you can see it next to the weight trend — when the scale stalls for a fortnight, this column usually explains it.</p>
+  </div>
+
+  <div class="section">
+    <h3>Oura data</h3>
+    <p class="note">Export the trends CSV from cloud.ouraring.com once a week and drop it in here. It fills in sleep, resting heart rate and HRV for every night in the file, and re-importing an overlapping week just overwrites those nights rather than duplicating them.</p>
+    <div class="inline">
+      <button class="add" style="padding:11px 18px" onclick="document.getElementById('oura-file').click()">Choose Oura export</button>
+      <input type="file" id="oura-file" class="hide" accept=".csv,.json,.tsv,text/csv,application/json" onchange="importOura(this)">
+    </div>
+    ${importMsg ? `<p class="note" style="margin-top:12px;color:var(--amber)">${esc(importMsg)}</p>` : ""}
+    <div class="row" style="margin-top:4px"><span>Nights of sleep on file</span><span>${Object.keys(s.sleep).length}</span></div>
+    <div class="row"><span>Resting-rate readings</span><span>${rhrDates.length}</span></div>
+  </div>
+
+  <div class="section">
+    <h3>Resting heart rate</h3>
+    <p class="note">The only honest proof the stairs are buying you endurance, and it moves months before the scale finishes. Also the early warning: a resting rate climbing while you train six days a week means you are digging a hole, not getting fitter.</p>
+    <div class="row"><span>Last 7 nights</span><span>${a7r !== null ? a7r.toFixed(0) + " bpm" : "—"}</span></div>
+    <div class="row"><span>First 7 nights</span><span>${f7r !== null ? f7r.toFixed(0) + " bpm" : "—"}</span></div>
+    <div class="row"><span>Change</span><span>${rhrDrop() !== null ? (rhrDrop() >= 0 ? "−" : "+") + Math.abs(rhrDrop()).toFixed(1) + " bpm" : "—"}</span></div>
+    ${a7v !== null ? `<div class="row"><span>HRV, last 7</span><span>${a7v.toFixed(0)} ms</span></div>` : ""}
+    <p class="note" style="margin-top:10px">${rhrDrop() === null ? "Needs a couple of weeks of readings before a change means anything." : rhrDrop() >= 3 ? "Down " + rhrDrop().toFixed(1) + " bpm. That is the endurance arriving." : rhrDrop() > -2 ? "Flat so far. Normal this early; look again in a month." : "Up " + Math.abs(rhrDrop()).toFixed(1) + " bpm. Worth a hard look at sleep and whether six days of stairs is too many right now."}</p>
+  </div>
+
+  <div class="section">
+    <h3>Daily targets</h3>
+    <div class="row"><span>Calories</span><span>${s.cals}</span></div>
+    <div class="row"><span>Protein</span><span>190–210 g</span></div>
+    <div class="row"><span>Lights out</span><span>9:30–10:00 pm</span></div>
+    <div class="inline">
+      <div class="fld"><input type="number" inputmode="numeric" id="b-cals" placeholder="adjust calories"></div>
+      <button class="ghost" onclick="saveCals()">Update</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Start date</h3>
+    <p class="note">Currently ${fmt(s.start)}, which puts you in week ${weekOf(today())}. Changing this moves the week count and deload schedule but keeps every weigh-in and logged set.</p>
+    <div class="inline">
+      <div class="fld"><input type="date" id="b-start" value="${s.start}"></div>
+      <button class="ghost" onclick="changeStart()">Move</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Your data</h3>
+    <p class="note">Everything lives on this phone only. Export before you change phones or clear your browser.</p>
+    <div class="inline">
+      <button class="ghost" onclick="exportData()">Export backup</button>
+      <button class="ghost" onclick="document.getElementById('imp').click()">Restore</button>
+      <input type="file" id="imp" class="hide" accept="application/json" onchange="importData(this)">
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Start over</h3>
+    <p class="note">Erases every weigh-in, measurement and logged set, then returns to the setup screen so you can pick a new start date. There is no undo — export a backup first if any of it matters.</p>
+    <div class="inline">
+      <button class="ghost danger" onclick="resetAll()">Erase everything and restart</button>
+    </div>
+  </div>`;
+}
+function fmt(d){
+  const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const dt = parseISO(d);
+  return m[dt.getMonth()]+" "+dt.getDate();
+}
+function saveWeight(){
+  const v = parseFloat(document.getElementById("b-wt").value);
+  if(isNaN(v)) return;
+  load().weights[today()] = v; save(); render();
+}
+/* ---------- Oura weekly export ---------- */
+let importMsg = "";
+
+function splitCsvLine(line){
+  const out = []; let cur = "", q = false;
+  for(let i=0;i<line.length;i++){
+    const c = line[i];
+    if(q){
+      if(c === '"'){ if(line[i+1] === '"'){ cur += '"'; i++; } else q = false; }
+      else cur += c;
+    }else{
+      if(c === '"') q = true;
+      else if(c === "," || c === ";" || c === "\t"){ out.push(cur); cur = ""; }
+      else cur += c;
+    }
+  }
+  out.push(cur);
+  return out.map(x=>x.trim());
+}
+
+function findCol(headers){
+  const needles = Array.prototype.slice.call(arguments, 1);
+  for(let n=0;n<needles.length;n++){
+    for(let i=0;i<headers.length;i++){
+      if(headers[i].toLowerCase().indexOf(needles[n]) >= 0) return i;
+    }
+  }
+  return -1;
+}
+
+function toIsoDate(raw){
+  const t = String(raw).trim().slice(0,10);
+  let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m) return m[1]+"-"+m[2].padStart(2,"0")+"-"+m[3].padStart(2,"0");
+  m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return m[3]+"-"+m[1].padStart(2,"0")+"-"+m[2].padStart(2,"0");
+  return null;
+}
+
+/* Oura has shipped sleep duration in seconds, in minutes and in hours
+   depending on the export, so infer the unit from the magnitude. */
+function toHours(v){
+  if(!isFinite(v) || v <= 0) return null;
+  if(v > 1000) return +(v / 3600).toFixed(2);
+  if(v > 24)   return +(v / 60).toFixed(2);
+  return +v.toFixed(2);
+}
+
+function parseOura(text){
+  const t = text.replace(/^\uFEFF/, "").trim();
+  let recs = [];
+
+  if(t.charAt(0) === "{" || t.charAt(0) === "["){
+    try{
+      const j = JSON.parse(t);
+      const arr = Array.isArray(j) ? j : (j.data || j.daily_sleep || j.sleep || j.daily_readiness || []);
+      arr.forEach(o=>{
+        const date = toIsoDate(o.day || o.date || o.summary_date || o.bedtime_start || "");
+        if(!date) return;
+        const c = o.contributors || {};
+        const sleepRaw = o.total_sleep_duration != null ? o.total_sleep_duration
+                       : (o.duration != null ? o.duration : null);
+        recs.push({
+          date: date,
+          sleep: sleepRaw != null ? toHours(+sleepRaw) : null,
+          rhr:   o.average_heart_rate != null ? +o.average_heart_rate
+               : (o.lowest_heart_rate != null ? +o.lowest_heart_rate
+               : (c.resting_heart_rate != null ? null : null)),
+          hrv:   o.average_hrv != null ? +o.average_hrv : null
+        });
+      });
+      if(recs.length) return recs;
+    }catch(e){ /* fall through to csv */ }
+  }
+
+  const lines = t.split(/\r?\n/).filter(l=>l.trim().length);
+  if(lines.length < 2) return [];
+  const h = splitCsvLine(lines[0]);
+  const iD = findCol(h, "date", "day");
+  const iS = findCol(h, "total sleep duration", "total sleep", "sleep duration", "asleep time", "sleep (h");
+  const iR = findCol(h, "average resting heart rate", "resting heart rate", "lowest resting heart rate", "resting hr");
+  const iV = findCol(h, "average hrv", "hrv balance", "hrv");
+  if(iD < 0) return { error:"no date column", headers:h };
+
+  for(let i=1;i<lines.length;i++){
+    const row = splitCsvLine(lines[i]);
+    const date = toIsoDate(row[iD] || "");
+    if(!date) continue;
+    const num = j => { if(j < 0) return null; const v = parseFloat(String(row[j]).replace(/[^0-9.\-]/g,"")); return isFinite(v) ? v : null; };
+    const sv = num(iS), rv = num(iR), vv = num(iV);
+    recs.push({ date:date, sleep: sv != null ? toHours(sv) : null, rhr: rv, hrv: vv });
+  }
+  return recs;
+}
+
+function importOura(input){
+  const f = input.files && input.files[0];
+  if(!f) return;
+  const rd = new FileReader();
+  rd.onload = e => {
+    let recs;
+    try{ recs = parseOura(String(e.target.result)); }
+    catch(err){ recs = []; }
+    if(recs && recs.error){
+      importMsg = "Could not find a date column. The file's columns were: " + recs.headers.slice(0,8).join(", ") + ".";
+      input.value = ""; render(); return;
+    }
+    if(!recs || !recs.length){
+      importMsg = "Nothing readable in that file. Export the trends CSV from cloud.ouraring.com rather than a screenshot or a PDF.";
+      input.value = ""; render(); return;
+    }
+    const d = load();
+    let ns = 0, nr = 0, nv = 0;
+    const dates = [];
+    recs.forEach(r=>{
+      dates.push(r.date);
+      if(r.sleep != null && r.sleep > 0 && r.sleep < 16){ d.sleep[r.date] = r.sleep; ns++; }
+      if(r.rhr   != null && r.rhr   > 25 && r.rhr < 130){ d.rhr[r.date]   = Math.round(r.rhr); nr++; }
+      if(r.hrv   != null && r.hrv   > 3  && r.hrv < 250){ d.hrv[r.date]   = Math.round(r.hrv); nv++; }
+    });
+    dates.sort();
+    const span = dates.length ? (fmt(dates[0]) + " to " + fmt(dates[dates.length-1])) : "";
+    const bits = [];
+    if(ns) bits.push(ns + " night" + (ns>1?"s":"") + " of sleep");
+    if(nr) bits.push(nr + " resting rate" + (nr>1?"s":""));
+    if(nv) bits.push(nv + " HRV");
+    importMsg = bits.length
+      ? "Imported " + bits.join(", ") + " — " + span + "."
+      : "Read " + recs.length + " rows but found no sleep or heart-rate values in them.";
+    save(); input.value = ""; render();
+  };
+  rd.readAsText(f);
+}
+
+function logPhotos(){
+  load().photos[today()] = true; save(); render();
+}
+function saveBelt(){
+  const v = parseInt(document.getElementById("b-belt").value, 10);
+  if(isNaN(v) || v < 0 || v > 12) return;
+  load().belt[today()] = v; save(); render();
+}
+function saveRhr(){
+  const v = parseInt(document.getElementById("b-rhr").value, 10);
+  if(isNaN(v) || v < 30 || v > 120) return;
+  load().rhr[today()] = v; save(); render();
+}
+function daysAgoNum(d){ return Math.round((parseISO(today()) - parseISO(d)) / DAY_MS); }
+function daysAgo(d){
+  const n = daysAgoNum(d);
+  return n === 0 ? "today" : n === 1 ? "yesterday" : n + " days ago";
+}
+function saveCals(){
+  const v = parseInt(document.getElementById("b-cals").value,10);
+  if(isNaN(v)) return;
+  load().cals = v; save(); render();
+}
+function changeStart(){
+  const v = document.getElementById("b-start").value;
+  if(!v) return;
+  load().start = v; save(); render();
+}
+function resetAll(){
+  if(!confirm("Erase all weigh-ins, measurements and logged sets? This cannot be undone.")) return;
+  if(!confirm("Last check — everything will be deleted and you will start from the setup screen.")) return;
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  mem = null;
+  load();
+  tab = "today";
+  viewDate = today();
+  viewDow = new Date().getDay();
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b.dataset.tab==="today"));
+  window.scrollTo(0,0);
+  render();
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(load(),null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "5am-backup-"+today()+".json";
+  a.click();
+}
+function importData(input){
+  const f = input.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = e => {
+    try{ mem = migrate(JSON.parse(e.target.result)); save(); render(); }
+    catch(err){ alert("That file could not be read. Pick a backup exported from this app."); }
+  };
+  rd.readAsText(f);
+}
+
+/* ---------- trend ---------- */
+function trendView(){
+  const raw = weightSeries();
+  if(raw.length < 2){
+    return `<div class="mast"><h2>Trend</h2></div>
+      <p class="note">Two weigh-ins and the chart draws itself. The first week of numbers will bounce around by several pounds from water alone — that is normal and it is why the average line exists.</p>`;
+  }
+  const avg = rollingAvg(raw,7);
+  const vals = raw.map(p=>p.v).concat(avg.map(p=>p.v));
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const pad = Math.max(1.5,(hi-lo)*0.15); lo-=pad; hi+=pad;
+
+  const W=560,H=190,L=34,R=8,T=12,B=22;
+  const x = i => L + (raw.length===1?0:i*(W-L-R)/(raw.length-1));
+  const y = v => T + (hi-v)*(H-T-B)/(hi-lo);
+  const path = arr => arr.map((p,i)=>(i?"L":"M")+x(i).toFixed(1)+" "+y(p.v).toFixed(1)).join(" ");
+
+  let grid="";
+  for(let g=0; g<=3; g++){
+    const v = lo + (hi-lo)*g/3;
+    grid += `<line class="grid" x1="${L}" x2="${W-R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/>
+             <text class="lbl" x="0" y="${(y(v)+4).toFixed(1)}">${v.toFixed(0)}</text>`;
+  }
+
+  const first = raw[0];
+  const startW = load().weights[load().start] || first.v;
+  const a7 = avgLast(7);
+  const totalLost = a7 ? startW - a7 : 0;
+  const done = Object.keys(load().sessions).filter(anyLogged).length;
+
+  return `
+  <div class="mast"><h2>Trend</h2><p class="sub">${raw.length} weigh-ins since ${fmt(first.d)}</p></div>
+  <svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Body weight over time">
+    ${grid}
+    <path class="raw" d="${path(raw)}"/>
+    <path class="avg" d="${path(avg)}"/>
+  </svg>
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--edge)"></i>daily</span>
+    <span><i class="swatch" style="background:var(--amber)"></i>7-day average</span>
+  </div>
+
+  <div class="section">
+    <h3>Since you started</h3>
+    <div class="row"><span>Starting weight</span><span>${startW.toFixed(1)} lb</span></div>
+    <div class="row"><span>Now, on average</span><span>${a7?a7.toFixed(1):"—"} lb</span></div>
+    <div class="row"><span>Total change</span><span>${totalLost>=0?"−":"+"}${Math.abs(totalLost).toFixed(1)} lb</span></div>
+    <div class="row"><span>Sessions logged</span><span>${done}</span></div>
+    <div class="row"><span>Days skipped</span><span>${skipCount()}</span></div>
+    <div class="row"><span>Sleep, last 7</span><span>${avgSleep(7) ? avgSleep(7).toFixed(1) + " hrs" : "—"}</span></div>
+    <div class="row"><span>Resting HR</span><span>${rhrDrop() !== null ? (rhrDrop() >= 0 ? "−" : "+") + Math.abs(rhrDrop()).toFixed(1) + " bpm" : "—"}</span></div>
+    <div class="row"><span>Week</span><span>${weekOf(today())} of 24</span></div>
+  </div>
+  <p class="note" style="margin-top:18px">A flat stretch of 7–10 days inside a falling trend is normal. Judge it by the amber line only.</p>`;
+}
+
+/* ---------- plan ---------- */
+function planView(){
+  const w = weekOf(today());
+  const cps = [
+    [2,"Prove the schedule is real",  "Up at 5, in bed by 10, six sessions done. If this part is not working, fix it before anything else — nothing downstream survives six hours of sleep."],
+    [4,"First honest data point",     "The 7-day average should be 4–6 lb below where you started. The stairs should feel less brutal at the same level."],
+    [8,"Deload, then reset",          "Deload week: stairs at level 5, weights at roughly 60%. After it, recalculate calories if the average has stalled."],
+    [16,"Second deload",              "Same again. By now the face and waist changes start showing to other people, not just to you."],
+    [17,"Diet break",                 "Two weeks at maintenance. Training unchanged. This is the single thing that separates people who finish from people who quit at month five."],
+    [24,"Decide what is next",        "Hold at maintenance, or turn it into a lean gaining phase. Do not simply keep cutting by default."]
+  ];
+  const rows = cps.map(([wk,t,d])=>{
+    const state = w>wk ? "past" : (w>=wk-1 && w<=wk ? "now" : "");
+    const mark = state==="past" ? "done" : (state==="now" ? "this week" : "week "+wk);
+    const colour = state==="now" ? "color:var(--amber)" : (state==="past" ? "color:var(--sage)" : "");
+    return `<div class="lift"><div class="lifthead"><span class="name" style="${colour}">${t}</span><span class="scheme">${mark}</span></div><div class="last" style="margin-top:5px">${d}</div></div>`;
+  }).join("");
+
+  return `
+  <div class="mast"><h2>The plan</h2><p class="sub">Stairs every day, two lifts on top. Sunday off.</p></div>
+
+  <div class="section">
+    <h3>Week to week</h3>
+    <div class="row"><span>Mon</span><span>Incline press · row · L7</span></div>
+    <div class="row"><span>Tue</span><span>RDL · hip thrust · intervals</span></div>
+    <div class="row"><span>Wed</span><span>DB press · pulldown · L7</span></div>
+    <div class="row"><span>Thu</span><span>Cable fly · leg curl · L5</span></div>
+    <div class="row"><span>Fri</span><span>Incline DB · cable row · L7</span></div>
+    <div class="row"><span>Sat</span><span>Stairs only, 40–50 easy</span></div>
+    <div class="row"><span>Sun</span><span>Rest</span></div>
+  </div>
+
+  <div class="section">
+    <h3>Why there are no squats</h3>
+    <p class="note">Thirty minutes of climbing is already a heavy dose of quad and glute work, six days a week. Adding squats and lunges on top of it buries your legs and buys nothing. So the barbell time goes where the stairs cannot reach: three pressing days for the upper pec, three pulling days to keep your shoulders back, and RDLs plus leg curls for the hamstrings, which climbing barely touches.</p>
+  </div>
+
+  <div class="section">
+    <h3>How to progress</h3>
+    <p class="note">On the weights, hit the top of the rep range on every set, then add weight next time and drop back to the bottom. On the stairs, hold level 7 for the full 30 minutes before you touch level 8 — and when you do, drop back to 20 minutes and build the time again. Deloads land on weeks 8, 16 and 24: stairs at level 5, weights at about 60%, and the app will tell you when.</p>
+  </div>
+
+  <div class="section">
+    <h3>Checkpoints</h3>
+    <div class="ledger">${rows}</div>
+  </div>
+
+  <div class="section">
+    <h3>When you cannot get to the gym</h3>
+    <p class="note">Every day except Sunday has a Home option at the top of the Today tab. Two bodyweight lifts in the same pattern, plus a brisk walk standing in for the stairs. It logs reps instead of weight so the two sets of history never get mixed up, and nothing in it jumps or thuds. Treat it as damage control: it holds what you have for a week, it does not add to it.</p>
+  </div>
+
+  <div class="section">
+    <h3>Worth knowing</h3>
+    <p class="note">Two lifts a day is near the floor of what holds muscle in a deficit. It works because the frequency is high — every muscle gets hit two or three times a week — but it leaves no room for junk sets. Those six sets have to be hard ones, taken within two reps of failure, or the stairs will quietly eat your muscle along with the fat.</p>
+    <p class="note" style="margin-top:12px">Fat comes off in an order your genes choose, not one you pick. The face and love handles tend to be late for men, so most of that change shows up in the back half. Keep pre-workout under 200 mg of caffeine, and stop and reassess if a knee or an achilles starts complaining — six days a week on a stepper is a lot of load through the same joints.</p>
+  </div>`;
+}
+
+/* ============================================================
+   boot
+   ============================================================ */
+document.getElementById("tabs").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-tab]");
+  if(!b) return;
+  tab = b.dataset.tab;
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on", x===b));
+  window.scrollTo(0,0);
+  render();
+});
+render();
+</script>
+</body>
+</html>
